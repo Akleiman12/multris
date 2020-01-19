@@ -1,0 +1,30 @@
+
+
+
+.board {
+    padding: 2.5pt;
+    max-height: 90vh;
+    margin: 0 0 0 10px;
+    height: 720px;
+    width: 360px;
+    display: grid;
+    grid-template-columns: calc(100% / 12);
+    grid-template-rows: calc(100% / 30);
+    background-color: rgb(39, 0, 39);
+}
+
+.cell {
+    margin: 0.5pt;
+    
+    &.color0 {
+        background-color: rgb(223, 186, 147);
+    }
+
+    &.color1 {
+        background-color: green;
+    }
+
+    &.color2 {
+        background-color: white;
+    }
+}
