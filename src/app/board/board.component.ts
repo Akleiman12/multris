@@ -1,78 +1,10 @@
 import { Component, OnInit } from '@angular/core';
+import { Piece } from '../piece/piece.component';
 import { throwError } from 'rxjs';
 
-const BOARD_HEIGHT = 30;
-const BOARD_WIDTH = 12;
-
-class Piece {
-
-  boardPosition: number[];
-  positionMatrix: number[][];
-  matrixSize: number;
-
-  constructor(mSize: number) {
-    this.matrixSize = mSize;
-    this.initMatrix();
-    this.initPiece();
-    this.initBoardPosition();
-    console.log()
-  }
-
-  initMatrix() {
-    this.positionMatrix = [];
-    for (let i = 0; i < this.matrixSize; i++) {
-      this.positionMatrix[i] = new Array(this.matrixSize);
-      for (let j = 0; j < this.matrixSize; j++) {
-        this.positionMatrix[i][j] = 0;
-      }
-    }
-  }
-
-  initPiece() {
-    const positions: number[][] = [[2, 2]];
-    this.positionMatrix[positions[0][0]][positions[0][1]] = 1;
-    ForLoop: for (let i = 1; i < this.matrixSize; i++) {
-      const selected = [...positions[Math.floor(Math.random() * positions.length)]];
-      const growthDir = ['U', 'R', 'D', 'L'];
-      do {
-        const ele = growthDir.splice(Math.floor(Math.random() * growthDir.length), 1)[0];
-        switch (ele) {
-          case 'U':
-            if (this.positionMatrix[selected[0] - 1] && this.positionMatrix[selected[0] - 1][selected[1]] === 0) {
-              selected[0] = selected[0] - 1;
-            }
-            break;
-          case 'R':
-            if (this.positionMatrix[selected[0]] && this.positionMatrix[selected[0]][selected[1] + 1] === 0) {
-              selected[1] = selected[1] + 1;
-            }
-            break;
-          case 'D':
-            if (this.positionMatrix[selected[0] + 1] && this.positionMatrix[selected[0] + 1][selected[1]] === 0) {
-              selected[0] = selected[0] + 1;
-            }
-            break;
-          case 'L':
-            if (this.positionMatrix[selected[0]] && this.positionMatrix[selected[0]][selected[1] - 1] === 0) {
-              selected[1] = selected[1] - 1;
-            }
-            break;
-          default:
-            continue ForLoop;
-        }
-      } while (this.positionMatrix[selected[0]][selected[1]] !== 0);
-
-      positions.push(selected);
-      this.positionMatrix[selected[0]][selected[1]] = 1;
-    }
-  }
-
-  initBoardPosition() {
-    this.boardPosition = [0, 0];
-  }
-
-  genNum = (n?) => Math.floor(Math.random() * (n ? n : this.matrixSize));
-}
+const BOARD_HEIGHT = 16;
+const BOARD_WIDTH = 8;
+const INITIAL_PIECE_SIZE = 6;
 
 @Component({
   selector: 'app-board',
@@ -83,12 +15,14 @@ export class BoardComponent implements OnInit {
 
   boardMatrix: number[][]; // [y][x] con eje (0,0) en esquina superior izquierda
   fallingPiece: Piece;
-  constructor() {
-  }
+  boardProportion: number;
+
+  constructor() {}
 
   ngOnInit() {
+    this.boardProportion = BOARD_WIDTH / BOARD_HEIGHT;
     this.initMatrix();
-    this.fallingPiece = new Piece(4);
+    this.fallingPiece = new Piece(INITIAL_PIECE_SIZE);
     this.paintPiece();
   }
 
@@ -102,12 +36,11 @@ export class BoardComponent implements OnInit {
     }
   }
 
-  // HAY QUE MEJORAR ESTE METODO, SOLO PARA PRUEBA
   paintPiece() {
     const piecePosition: number[] = this.fallingPiece.boardPosition;
     for (let i = 0; i < this.fallingPiece.matrixSize; i++) {
       for (let j = 0; j < this.fallingPiece.matrixSize; j++) {
-        if (this.fallingPiece.positionMatrix[i][j]) {
+        if (this.fallingPiece.pieceMatrix[i][j]) {
           this.boardMatrix[piecePosition[0] + i][piecePosition[1] + j] = 1;
         }
       }
@@ -118,7 +51,26 @@ export class BoardComponent implements OnInit {
 
   regenPiece() {
     this.initMatrix();
-    this.fallingPiece = new Piece(4);
+    this.fallingPiece = new Piece(INITIAL_PIECE_SIZE);
     this.paintPiece();
+  }
+  //
+  tick(){
+    
+  }
+
+  movePiece(direction: string) {
+    const height = this.fallingPiece.pieceMatrix.length;
+    const width = this.fallingPiece.pieceMatrix[0].length;
+    if(this.checkForBlocks)
+    for (let i = 0; i < height; i++) {
+      for (let j = 0; i < width; j++) {
+        
+      }
+    }
+  }
+
+  checkForBlocks(direction) {
+
   }
 }

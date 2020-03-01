@@ -8,8 +8,8 @@
     height: 720px;
     width: 360px;
     display: grid;
-    grid-template-columns: calc(100% / 12);
-    grid-template-rows: calc(100% / 30);
+    grid-template-columns: calc(100% / 8);
+    grid-template-rows: calc(100% / 16);
     background-color: rgb(39, 0, 39);
 }
 
