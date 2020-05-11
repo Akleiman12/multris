@@ -1,7 +1,7 @@
 <div class="board" [ngStyle]="{'width': (719.45 * boardProportion) + 'px'}">
     <ng-container *ngFor="let row of boardMatrix; index as i">
-            <ng-container *ngFor="let cell of row; index as j">
-                <div class="cell" [ngStyle]="{'grid-column-start': j+1, 'overflow': 'hidden'}" [ngClass]="'color'+cell">
+            <ng-container *ngFor="let box of row; index as j">
+                <div class="cell" [ngStyle]="{'grid-column-start': j+1, 'overflow': 'hidden'}" [ngClass]="'color'+box+' '+fallingPiece.color">
                                      
                 </div>
             </ng-container>

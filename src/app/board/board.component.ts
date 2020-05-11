@@ -1,10 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { Piece } from '../piece/piece.component';
-import { throwError } from 'rxjs';
 
 const BOARD_HEIGHT = 16;
 const BOARD_WIDTH = 8;
-const INITIAL_PIECE_SIZE = 6;
+const INITIAL_PIECE_SIZE = 4;
 
 @Component({
   selector: 'app-board',
@@ -13,20 +12,26 @@ const INITIAL_PIECE_SIZE = 6;
 })
 export class BoardComponent implements OnInit {
 
-  boardMatrix: number[][]; // [y][x] con eje (0,0) en esquina superior izquierda
+  boardMatrix: number[][]; // [y][x] con eje (0,0) en esquina superior izquierda - Valores: (1) Ocupado (0) Vacio
   fallingPiece: Piece;
+  fallingPiecePosition : number[];
   boardProportion: number;
+  entryPoint: number[];
+  tickerInterval: number;
+  MIP: boolean //Movement In Process
+  MIPTimeoutId: any;
+  priorKey
 
   constructor() {}
 
   ngOnInit() {
     this.boardProportion = BOARD_WIDTH / BOARD_HEIGHT;
-    this.initMatrix();
-    this.fallingPiece = new Piece(INITIAL_PIECE_SIZE);
-    this.paintPiece();
+    this.initBoardMatrix();
+    this.initPiece();
+    this.initTicker();
   }
 
-  initMatrix() {
+  initBoardMatrix() {
     this.boardMatrix = [];
     for (let i = 0; i < BOARD_HEIGHT; i++) {
       this.boardMatrix[i] = new Array(BOARD_WIDTH);
@@ -34,12 +39,34 @@ export class BoardComponent implements OnInit {
         this.boardMatrix[i][j] = 0;
       }
     }
+    this.entryPoint = [0, Math.round(BOARD_WIDTH / 2) - 1];
+  }
+
+  initPiece() {
+    this.fallingPiece = new Piece(INITIAL_PIECE_SIZE);
+    this.fallingPiecePosition = this.entryPoint;
+    this.paintPiece();
+  }
+
+  initTicker(){
+    this.tickerInterval = this.tickerInterval ? this.tickerInterval : 1000;
+    this.eventSetter();
+    setTimeout(this.tick.bind(this), this.tickerInterval);
+
+  }
+
+  
+
+  tick() {
+    this.movePiece({ code: 'KeyS' })
+    setTimeout(this.tick.bind(this), this.tickerInterval);
   }
 
   paintPiece() {
-    const piecePosition: number[] = this.fallingPiece.boardPosition;
-    for (let i = 0; i < this.fallingPiece.matrixSize; i++) {
-      for (let j = 0; j < this.fallingPiece.matrixSize; j++) {
+    const piecePosition: number[] = this.fallingPiecePosition;
+    console.log(this.fallingPiece.pieceMatrix);
+    for (let i = 0; i < this.fallingPiece.pieceMatrix.length; i++) {
+      for (let j = 0; j < this.fallingPiece.pieceMatrix[i].length; j++) {
         if (this.fallingPiece.pieceMatrix[i][j]) {
           this.boardMatrix[piecePosition[0] + i][piecePosition[1] + j] = 1;
         }
@@ -47,30 +74,60 @@ export class BoardComponent implements OnInit {
     }
   }
 
+  movePiece(event) {
+    if(!this.MIP || event.code !== this.priorKey){
+      if (this.MIPTimeoutId) {
+        clearTimeout(this.MIPTimeoutId)
+        this.MIPTimeoutId = null;
+      } else {
+        this.MIP = true;
+      }
+      console.log('moving triggered', event)
+      this.priorKey = event.code;
+      switch(event.code){
+        case 'KeyA':
+          this.fallingPiecePosition[1] -= 1;
+          break;
+        case 'KeyS':
+          this.fallingPiecePosition[0] += 1;
+          break;
+        case 'KeyD':
+          this.fallingPiecePosition[1] += 1;
+          break;
+        case 'KeyW':
+          this.fallingPiece.rotatePiece();
+          break;
+      }
+      this.initBoardMatrix();
+      this.paintPiece();
+      this.MIPTimeoutId = setTimeout(() => {
+        this.MIP = false;
+        this.MIPTimeoutId = null;
+      }, 500);
+    }
+  }
+
+  eventSetter() {
+    addEventListener('keydown', this.movePiece.bind(this))
+    addEventListener('keyup', (event) => {
+      if (event.keyCode !== this.priorKey) {
+        this.MIP = false;
+        if (this.MIPTimeoutId) {
+          clearTimeout(this.MIPTimeoutId)
+          this.MIPTimeoutId = null;
+        }
+      }
+    })
+  }
+
   // dev-tests ==========================================================================
 
   regenPiece() {
-    this.initMatrix();
+    this.initBoardMatrix();
+    this.fallingPiecePosition = this.entryPoint;
     this.fallingPiece = new Piece(INITIAL_PIECE_SIZE);
     this.paintPiece();
   }
   //
-  tick(){
-    
-  }
 
-  movePiece(direction: string) {
-    const height = this.fallingPiece.pieceMatrix.length;
-    const width = this.fallingPiece.pieceMatrix[0].length;
-    if(this.checkForBlocks)
-    for (let i = 0; i < height; i++) {
-      for (let j = 0; i < width; j++) {
-        
-      }
-    }
-  }
-
-  checkForBlocks(direction) {
-
-  }
 }

@@ -1,56 +1,39 @@
 
+
+let COLORS = ['yellow','green','blue','red'];
+
 export class Piece {
 
-  boardPosition: number[];
   pieceMatrix: number[][];
   matrixSize: number;
-  rotationPoint: number[];
+  color: string;
 
   constructor(mSize: number) {
+    this.color = COLORS[Math.floor(Math.random() * (COLORS.length - 1))]
     this.matrixSize = mSize;
     this.initPiece();
-    this.boardPosition = [0, 0];
-    this.initRotationPoint();
-    console.log();
+    this.pieceMatrix = this.reduceMatrix(this.pieceMatrix);
   }
 
   /**
-   * @description Initialize pieceMatrix and fill the matrix with 0
+   * @description Returns correctly sized matrix filled with 0's
    */
   private initMatrix() {
-    this.pieceMatrix = [];
+    let emptyMatrix = [];
     for (let i = 0; i < this.matrixSize; i++) {
-      this.pieceMatrix[i] = new Array(this.matrixSize);
+      emptyMatrix[i] = new Array(this.matrixSize);
       for (let j = 0; j < this.matrixSize; j++) {
-        this.pieceMatrix[i][j] = 0;
+        emptyMatrix[i][j] = 0;
       }
     }
+    return emptyMatrix;
   }
 
   /**
-   * @description Reduces the matrix to fit the piece with no blank lines
+   * @description Generate the piece shape
    */
-  private reduceMatrix() {
-    // columns and rows to erase
-    const columns = [...this.pieceMatrix[0].keys()];
-    const rows = [];
-    for (let i = 0; i < this.pieceMatrix.length; i++) {
-      let flag = false;
-      for (let j = 0; j < this.pieceMatrix[i].length; j++) {
-        if (this.pieceMatrix[i][j]) {
-          flag = true;
-          columns.splice(columns.indexOf(j), 1);
-        }
-      }
-      if (flag) {
-        rows.push(i);
-      }
-    }
-    rows.forEach((rowIndex) => this.pieceMatrix[rowIndex]);
-  }
-
   private initPiece() {
-    this.initMatrix();
+    this.pieceMatrix = this.initMatrix();
     const positions: number[][] = [[2, 2]];
     this.pieceMatrix[positions[0][0]][positions[0][1]] = 1;
     ForLoop: for (let i = 1; i < this.matrixSize; i++) {
@@ -87,12 +70,48 @@ export class Piece {
       positions.push(selected);
       this.pieceMatrix[selected[0]][selected[1]] = 1;
     }
-
-
-
   }
 
-  private initRotationPoint() {
+  /**
+   * @description Reduces the matrix to fit the piece with no blank lines
+   */
+  private reduceMatrix(auxMatrix) {
+    // columns and rows to erase
+    const columns = [...auxMatrix[0].keys()];
+    const rows = [];
+    
+    // Search Rows and Columns to erase
+    for (let i = 0; i < auxMatrix.length; i++) {
+      let flag = false;
+      for (let j = 0; j < auxMatrix[i].length; j++) {
+        if (auxMatrix[i][j]) {
+          flag = true;
+
+          columns.indexOf(j) != -1 ? columns.splice(columns.indexOf(j), 1) : null;
+        }
+      }
+      if (!flag) {
+        rows.push(i);
+      }
+    }
+    // Erase Rows
+    rows.reverse().forEach( (n) => {
+      auxMatrix.splice(n, 1);
+    })
+    // Erase Columns
+    columns.reverse().forEach( (n) => {
+      for(let row = 0; row < auxMatrix.length; row++) {
+        auxMatrix[row].splice(n, 1);
+      }
+    })
+    return auxMatrix;
+  }
+
+  /**
+   * @description Determine the rotation point of the newly created piece
+   * @deprecated
+   */
+/*   private initRotationPoint() {
     const heightWeights: number[] = [];
     const widthWeights: number[] = [];
     for (const [i, column] of this.pieceMatrix.entries()) {
@@ -106,8 +125,24 @@ export class Piece {
       }
       heightWeights[i] = count;
     }
+    this.rotationPoint = [];
+    this.rotationPoint[0] = heightWeights.indexOf(Math.max(...heightWeights));
+    this.rotationPoint[1] = widthWeights.indexOf(Math.max(...widthWeights));
+  } */
 
-
+  /**
+   * @description Function to rotate piece, counter-clockwise
+   */
+  rotatePiece() {
+    let n = this.pieceMatrix[0].length > this.pieceMatrix.length ? this.pieceMatrix[0].length -1 : this.pieceMatrix.length -1 ;
+    let auxMatrix = this.initMatrix();
+    for (let i = 0; i < this.pieceMatrix.length; i++) {
+      for (let j = 0; j < this.pieceMatrix[i].length; j++) {
+        auxMatrix[n-j][i] = this.pieceMatrix[i][j];
+      }
+    }
+    auxMatrix = this.reduceMatrix(auxMatrix);
+    this.pieceMatrix = auxMatrix;
   }
 
   genNum = (n?) => Math.floor(Math.random() * (n ? n : this.matrixSize));

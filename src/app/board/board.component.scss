@@ -1,27 +1,40 @@
 
-
+$COLUMNS: 8;
+$ROWS: 16;
 
 .board {
     padding: 2.5pt;
     max-height: 90vh;
     margin: 0 0 0 10px;
-    height: 720px;
-    width: 360px;
+    height: calc(45px * #{$ROWS});
+    width: calc(45px * #{$COLUMNS});
     display: grid;
-    grid-template-columns: calc(100% / 8);
-    grid-template-rows: calc(100% / 16);
-    background-color: rgb(39, 0, 39);
+    grid-template-columns: calc(100% / #{$COLUMNS});
+    grid-template-rows: calc(100% / #{$ROWS});
+    background-color: rgb(63, 63, 63);
 }
 
 .cell {
-    margin: 0.5pt;
+    margin: 0;
     
     &.color0 {
-        background-color: rgb(223, 186, 147);
+        background-color: rgb(0, 0, 0);
     }
 
     &.color1 {
-        background-color: green;
+
+        &.yellow{
+            background-color: yellow;
+        }
+        &.green{
+            background-color: green;
+        }
+        &.blue{
+            background-color: blue;
+        }
+        &.red{
+            background-color: red;
+        }
     }
 
     &.color2 {

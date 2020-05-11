@@ -12,6 +12,5 @@ export class AppComponent {
   title = 'multris';
 
   start() {
-    console.log('this.board.fallingPiece.rotationPoint;', this.board.fallingPiece.rotationPoint);
   }
 }
