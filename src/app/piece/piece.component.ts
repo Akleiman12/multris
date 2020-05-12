@@ -1,15 +1,15 @@
 
+// Posible piece Colors (Need to be adapted in scss of boardComponent)
 
-let COLORS = ['yellow','green','blue','red'];
 
 export class Piece {
 
-  pieceMatrix: number[][];
-  matrixSize: number;
-  color: string;
+  pieceMatrix: number[][]; // Shape of piece
+  matrixSize: number; // Size of filled squares in piece
+  color: string; // Piece's color
 
-  constructor(mSize: number) {
-    this.color = COLORS[Math.floor(Math.random() * (COLORS.length - 1))]
+  constructor(mSize: number, color: string) {
+    this.color = color;
     this.matrixSize = mSize;
     this.initPiece();
     this.pieceMatrix = this.reduceMatrix(this.pieceMatrix);
@@ -74,6 +74,7 @@ export class Piece {
 
   /**
    * @description Reduces the matrix to fit the piece with no blank lines
+   * @param auxMatrix Matrix to trim of empty rows and columns
    */
   private reduceMatrix(auxMatrix) {
     // columns and rows to erase
@@ -108,30 +109,8 @@ export class Piece {
   }
 
   /**
-   * @description Determine the rotation point of the newly created piece
-   * @deprecated
-   */
-/*   private initRotationPoint() {
-    const heightWeights: number[] = [];
-    const widthWeights: number[] = [];
-    for (const [i, column] of this.pieceMatrix.entries()) {
-      let count = 0;
-      for (const [j, block] of column.entries()) {
-        if (widthWeights[j] === undefined) {
-          widthWeights[j] = 0;
-        }
-        widthWeights[j] += block;
-        count += block;
-      }
-      heightWeights[i] = count;
-    }
-    this.rotationPoint = [];
-    this.rotationPoint[0] = heightWeights.indexOf(Math.max(...heightWeights));
-    this.rotationPoint[1] = widthWeights.indexOf(Math.max(...widthWeights));
-  } */
-
-  /**
-   * @description Function to rotate piece, counter-clockwise
+   * @description Function to rotate piece, counter-clockwise. Just returns the rotated pieceMatrix.
+   * Confirm operation by saving result in pieceMatrix property of Piece.
    */
   rotatePiece() {
     let n = this.pieceMatrix[0].length > this.pieceMatrix.length ? this.pieceMatrix[0].length -1 : this.pieceMatrix.length -1 ;
@@ -142,7 +121,7 @@ export class Piece {
       }
     }
     auxMatrix = this.reduceMatrix(auxMatrix);
-    this.pieceMatrix = auxMatrix;
+    return auxMatrix;
   }
 
   genNum = (n?) => Math.floor(Math.random() * (n ? n : this.matrixSize));
