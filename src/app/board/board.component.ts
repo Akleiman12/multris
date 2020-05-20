@@ -14,11 +14,14 @@ const COLORS = ['yellow','green','blue','red'];
 export class BoardComponent implements OnInit {
 
   // Board and Piece Related Properties
-  boardMatrix: number[][] | string[][]; // [y][x] con eje (0,0) en esquina superior izquierda - Valores: (1) Ocupado (0) Vacio
+  boardMatrix: Array<number | string>[]; // [y][x] con eje (0,0) en esquina superior izquierda - Valores: (1) Ocupado (0) Vacio
   boardProportion: number; // Float with the numeric proportion of the board (Width/Height)
   entryPoint: number[]; // New piece's entry point into boardMatrix
   fallingPiece: Piece; // Piece currently in motion
   fallingPiecePosition : number[]; // [y, x] Position of fallingPiece inside boardMatrix
+  points: number;
+  level: number;
+  nextLevel: number;
 
   // Config Related Properties
   tickerInterval: number; // Time interval between ticks (ms)
@@ -33,6 +36,9 @@ export class BoardComponent implements OnInit {
 
   ngOnInit() {
     this.boardProportion = BOARD_WIDTH / BOARD_HEIGHT;
+    this.nextLevel = 1;
+    this.level = 0;
+    this.points = 0;
     this.initBoardMatrix();
     this.initPiece();
     this.initTicker();
@@ -41,16 +47,21 @@ export class BoardComponent implements OnInit {
   initBoardMatrix() {
     this.boardMatrix = [];
     for (let i = 0; i < BOARD_HEIGHT; i++) {
-      this.boardMatrix[i] = new Array(BOARD_WIDTH);
-      for (let j = 0; j < BOARD_WIDTH; j++) {
-        this.boardMatrix[i][j] = 0;
-      }
+      this.boardMatrix[i] = this.createRow();
     }
     this.entryPoint = [0, Math.round(BOARD_WIDTH / 2) - 1];
   }
 
+  createRow(value: string | number = 0) {
+    let row = new Array(BOARD_WIDTH);
+      for (let i = 0; i < BOARD_WIDTH; i++) {
+        row[i] = value;
+      }
+      return row;
+  }
+
   initPiece() {
-    this.fallingPiece = new Piece(INITIAL_PIECE_SIZE, COLORS[Math.floor(Math.random() * (COLORS.length))]);
+    this.fallingPiece = new Piece(INITIAL_PIECE_SIZE + this.level, COLORS[Math.floor(Math.random() * (COLORS.length))]);
     this.fallingPiecePosition = this.entryPoint;
     this.paintPiece();
   }
@@ -59,7 +70,7 @@ export class BoardComponent implements OnInit {
     this.tickerInterval = this.tickerInterval ? this.tickerInterval : 1000;
     this.eventSetter();
     this.nextTick = setTimeout(this.tick.bind(this), this.tickerInterval);
-
+    console.log("actualMatrix",this.boardMatrix)
   }
 
   cleanBoardCurrentPiece() {
@@ -77,7 +88,43 @@ export class BoardComponent implements OnInit {
     }
   }
 
-  tick() {
+  checkForLines(){
+    return new Promise( (resolve) => {
+      let rowToClean = [];
+      for (let [index, row] of this.boardMatrix.entries()) {
+        let aux = row.findIndex((val) => typeof val === 'number');
+        if (aux === -1) {
+          rowToClean.push(index);
+        }
+      }
+      if(rowToClean.length){
+        console.log("POINTS: +", rowToClean.length);
+        for(let index of rowToClean) {
+          this.boardMatrix[index] = this.createRow('white');
+        }
+        this.points += rowToClean.length;
+        setTimeout(() => {
+          for(let index of rowToClean) {
+            this.boardMatrix[index] = this.createRow();
+          }          
+        }, 500)
+        setTimeout(() => {
+          for(let index of rowToClean) {
+            delete this.boardMatrix[index];
+            this.boardMatrix = [this.createRow(), ...this.boardMatrix.filter((row) => row !== undefined) ];
+          }
+          // Recalc Level
+          this.level = Math.floor(this.points / 2);
+          resolve();
+        }, 1000)
+      } else {
+        console.log('NO POINTS');
+        resolve();
+      }
+    })
+  }
+
+  async tick() {
     const bottomCollision = this.detectBoardCollision([this.fallingPiecePosition[0] + 1, this.fallingPiecePosition[1]], this.fallingPiece.pieceMatrix)
     // Check for boarder collision
     // Check for cell collision
@@ -85,6 +132,7 @@ export class BoardComponent implements OnInit {
     // If false => continue to nextTick
     if(bottomCollision) {
       this.fixPieceOnBoard();
+      await this.checkForLines()
       this.initPiece();
       this.initTicker();
     } else {
@@ -154,7 +202,7 @@ export class BoardComponent implements OnInit {
     for (let i of pieceMatrix.keys()) {
       for (let j of pieceMatrix[i].keys()) {
        collision = (this.boardMatrix[position[0] + i] === undefined || this.boardMatrix[position[0] + i][position[1] + j] === undefined) 
-        || (pieceMatrix[i][j] === 1 && (this.boardMatrix[position[0] + i] && typeof this.boardMatrix[position[0] + i][position[1] + j] === 'stringd'));
+        || (pieceMatrix[i][j] === 1 && (this.boardMatrix[position[0] + i] && typeof this.boardMatrix[position[0] + i][position[1] + j] === 'string'));
        if (collision) {
          return collision;
        }
