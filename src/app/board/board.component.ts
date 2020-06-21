@@ -1,5 +1,6 @@
 import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import { Piece } from '../piece/piece.component';
+import { isGeneratedFile } from '@angular/compiler/src/aot/util';
 
 const BOARD_HEIGHT = 16;
 const BOARD_WIDTH = 8;
@@ -19,23 +20,25 @@ export class BoardComponent implements OnInit {
   entryPoint: number[]; // New piece's entry point into boardMatrix
   fallingPiece: Piece; // Piece currently in motion
   fallingPiecePosition : number[]; // [y, x] Position of fallingPiece inside boardMatrix
+  nextPiece: Piece;
   points: number;
   level: number;
   nextLevel: number;
-  stop: boolean;
-  resume: any;
-
+  
   // Config Related Properties
   tickerInterval: number; // Time interval between ticks (ms)
   nextTick: any;
-
+  
   // Movement Related Properties
   MIP: boolean // Movement In Process Flag
   MIPTimeoutId: any; // Id of setTimeout function for movement blocking
   priorKey: any; // Code of prior key to compare and allow movement
-
-
-  @Output() gameOver = new EventEmitter();
+  
+  // Game Management
+  gameOverFlag: boolean;
+  stop: boolean;
+  resume: any;
+  
   constructor() {}
 
   ngOnInit() {
@@ -65,7 +68,11 @@ export class BoardComponent implements OnInit {
   }
 
   initPiece() {
-    this.fallingPiece = new Piece(INITIAL_PIECE_SIZE + this.level, COLORS[Math.floor(Math.random() * (COLORS.length))]);
+    if(!this.nextPiece) {
+      this.nextPiece =  new Piece(INITIAL_PIECE_SIZE + this.level, COLORS[Math.floor(Math.random() * (COLORS.length))]);
+    }
+    this.fallingPiece = this.nextPiece;
+    this.nextPiece =  new Piece(INITIAL_PIECE_SIZE + this.level, COLORS[Math.floor(Math.random() * (COLORS.length))]);
     this.fallingPiecePosition = this.entryPoint;
     this.paintPiece();
   }
@@ -149,12 +156,27 @@ export class BoardComponent implements OnInit {
 
   paintPiece() {
     const piecePosition: number[] = this.fallingPiecePosition;
-    for (let i = 0; i < this.fallingPiece.pieceMatrix.length; i++) {
-      for (let j = 0; j < this.fallingPiece.pieceMatrix[i].length; j++) {
-        if(this.fallingPiece.pieceMatrix[i][j] === 1)
-          this.boardMatrix[piecePosition[0] + i][piecePosition[1] + j] = this.fallingPiece.pieceMatrix[i][j];
+    if (this.checkInitArea()){
+      for (let i = 0; i < this.fallingPiece.pieceMatrix.length; i++) {
+        for (let j = 0; j < this.fallingPiece.pieceMatrix[i].length; j++) {
+          if(this.fallingPiece.pieceMatrix[i][j] === 1)
+            this.boardMatrix[piecePosition[0] + i][piecePosition[1] + j] = this.fallingPiece.pieceMatrix[i][j];
+        }
+      }
+    } else {
+      this.gameOver();
+    }
+  }
+
+  checkInitArea() {
+    for(let [i, row] of this.fallingPiece.pieceMatrix.entries()) {
+      for(let [j, cell] of row.entries()) {
+        if (cell !== 0 && this.boardMatrix[i+this.fallingPiecePosition[0]][j+this.fallingPiecePosition[1]] !== 0) {
+          return false;
+        }
       }
     }
+    return true;
   }
 
   movePiece(event) {
@@ -237,6 +259,12 @@ export class BoardComponent implements OnInit {
       setTimeout(this.tick.bind(this), this.tickerInterval);
       this.stop = false;
     }
+  }
+
+  gameOver() {
+    this.stop = true;
+    this.nextPiece = null;
+    this.gameOverFlag = true;
   }
 
   // dev-tests ==========================================================================

@@ -1,5 +1,5 @@
-<div class="boardContainer">
-    <div>
+<div class="outerContainer">
+    <div class="boardContainer">
         <div class="board" [ngStyle]="{'width': (719.45 * boardProportion) + 'px'}">
             <ng-container *ngFor="let row of boardMatrix; index as i">
                     <ng-container *ngFor="let currentCell of row; index as j">
@@ -9,10 +9,13 @@
                     </ng-container>
             </ng-container>
         </div>
+        <div class="gameOverOverlay" *ngIf="gameOverFlag">
+            <p>GAME OVER BITCH</p>
+        </div>
     </div>
     <div class="infoContainer" >
         <p>Points: {{ points }}</p>
         <p>Level: {{ level }}</p>
-        <a [class]="stop ? 'resume' : 'pause'" (click)="stop ? resume() : stopGame()">{{ stop ? 'RESUME' : 'PAUSE'}}</a>
+        <a [class]="stop ? 'resume' : 'pause'" (click)="gameOver ? null : (stop ? resume() : stopGame())">{{ stop ? 'RESUME' : 'PAUSE'}}</a>
     </div>
 </div>
