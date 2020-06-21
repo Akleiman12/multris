@@ -1,9 +1,16 @@
-
-.boardWrapper {
-    background: gray;
+.body{
     height: 100vh;
     width: 100vw;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    background: gray;
+    display: grid;
+    grid-template-rows: 7vh 13vh 70vh 10vh;
+    grid-template-columns: 5vw 45vw 45vw 5vw;
+    .boardWrapper {
+        grid-column: 2 / 3;
+        grid-row: 2 / 4;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
 }

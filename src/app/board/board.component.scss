@@ -5,6 +5,7 @@ $ROWS: 16;
 .outerContainer {
     display: flex;
     .boardContainer {
+        box-sizing: border-box;
         height: calc(45px * #{$ROWS});
         width: calc(45px * #{$COLUMNS});
         position: relative;
