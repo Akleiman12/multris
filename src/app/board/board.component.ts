@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import { Piece } from '../piece/piece.component';
 
 const BOARD_HEIGHT = 16;
@@ -22,6 +22,8 @@ export class BoardComponent implements OnInit {
   points: number;
   level: number;
   nextLevel: number;
+  stop: boolean;
+  resume: any;
 
   // Config Related Properties
   tickerInterval: number; // Time interval between ticks (ms)
@@ -32,6 +34,8 @@ export class BoardComponent implements OnInit {
   MIPTimeoutId: any; // Id of setTimeout function for movement blocking
   priorKey: any; // Code of prior key to compare and allow movement
 
+
+  @Output() gameOver = new EventEmitter();
   constructor() {}
 
   ngOnInit() {
@@ -125,19 +129,21 @@ export class BoardComponent implements OnInit {
   }
 
   async tick() {
-    const bottomCollision = this.detectBoardCollision([this.fallingPiecePosition[0] + 1, this.fallingPiecePosition[1]], this.fallingPiece.pieceMatrix)
-    // Check for boarder collision
-    // Check for cell collision
-    // If true && (non-lateral-collision) => quit nextTick & initNewPiece
-    // If false => continue to nextTick
-    if(bottomCollision) {
-      this.fixPieceOnBoard();
-      await this.checkForLines()
-      this.initPiece();
-      this.initTicker();
-    } else {
-      this.movePiece({ code: 'KeyS' });
-      this.nextTick = setTimeout(this.tick.bind(this), this.tickerInterval);
+    if(!this.stop){
+      const bottomCollision = this.detectBoardCollision([this.fallingPiecePosition[0] + 1, this.fallingPiecePosition[1]], this.fallingPiece.pieceMatrix)
+      // Check for boarder collision
+      // Check for cell collision
+      // If true && (non-lateral-collision) => quit nextTick & initNewPiece
+      // If false => continue to nextTick
+      if(bottomCollision) {
+        this.fixPieceOnBoard();
+        await this.checkForLines()
+        this.initPiece();
+        this.initTicker();
+      } else {
+        this.movePiece({ code: 'KeyS' });
+        this.nextTick = setTimeout(this.tick.bind(this), this.tickerInterval);
+      }
     }
   }
 
@@ -223,6 +229,14 @@ export class BoardComponent implements OnInit {
         }
       }
     })
+  }
+
+  stopGame() {
+    this.stop = true;
+    this.resume = function() {
+      setTimeout(this.tick.bind(this), this.tickerInterval);
+      this.stop = false;
+    }
   }
 
   // dev-tests ==========================================================================

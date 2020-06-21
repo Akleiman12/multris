@@ -1,14 +1,18 @@
-<div class="board" [ngStyle]="{'width': (719.45 * boardProportion) + 'px'}">
-    <ng-container *ngFor="let row of boardMatrix; index as i">
-            <ng-container *ngFor="let currentCell of row; index as j">
-                <div class="cell" [ngStyle]="{'grid-column-start': j+1, 'overflow': 'hidden'}" [ngClass]="'color-' + (currentCell == 1 ? fallingPiece.color : currentCell)">
-                                     
-                </div>
+<div class="boardContainer">
+    <div>
+        <div class="board" [ngStyle]="{'width': (719.45 * boardProportion) + 'px'}">
+            <ng-container *ngFor="let row of boardMatrix; index as i">
+                    <ng-container *ngFor="let currentCell of row; index as j">
+                        <div class="cell" [ngStyle]="{'grid-column-start': j+1, 'overflow': 'hidden'}" [ngClass]="'color-' + (currentCell == 1 ? fallingPiece.color : currentCell)">
+                                             
+                        </div>
+                    </ng-container>
             </ng-container>
-    </ng-container>
-</div>
-<button (click)="regenPiece()"> REGEN </button>
-<div>
-    <h3>Points: {{ points }}</h3>
-    <h3>Level: {{ level }}</h3>
+        </div>
+    </div>
+    <div class="infoContainer" >
+        <p>Points: {{ points }}</p>
+        <p>Level: {{ level }}</p>
+        <a [class]="stop ? 'resume' : 'pause'" (click)="stop ? resume() : stopGame()">{{ stop ? 'RESUME' : 'PAUSE'}}</a>
+    </div>
 </div>

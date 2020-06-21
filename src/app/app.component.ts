@@ -12,5 +12,10 @@ export class AppComponent {
   title = 'multris';
 
   start() {
+    
+  }
+
+  finishGame() {
+
   }
 }
