@@ -1,6 +1,6 @@
 <div class="outerContainer">
     <div class="boardContainer">
-        <div class="board" [ngStyle]="{'width': (719.45 * boardProportion) + 'px'}">
+        <div class="board" [ngStyle]="getBoardStyles()">
             <ng-container *ngFor="let row of boardMatrix; index as i">
                     <ng-container *ngFor="let currentCell of row; index as j">
                         <div class="cell" [ngStyle]="{'grid-column-start': j+1, 'overflow': 'hidden'}" [ngClass]="'color-' + (currentCell == 1 ? fallingPiece.color : currentCell)">
@@ -10,12 +10,30 @@
             </ng-container>
         </div>
         <div class="gameOverOverlay" *ngIf="gameOverFlag">
-            <p>GAME OVER BITCH</p>
+            <p>GAME OVER</p>
+            <br>
+            <a>TRY AGAIN?</a>
         </div>
     </div>
-    <div class="infoContainer" >
-        <p>Points: {{ points }}</p>
-        <p>Level: {{ level }}</p>
-        <a [class]="stop ? 'resume' : 'pause'" (click)="gameOver ? null : (stop ? resume() : stopGame())">{{ stop ? 'RESUME' : 'PAUSE'}}</a>
+    <div class="containerContainer">
+        <div class="infoContainer big" >
+            <div class="nextPiecePreview" [ngStyle]="{'grid-template-rows': nextPiece.matrixSize,'grid-template-columns': nextPiece.matrixSize}">
+                <ng-container *ngIf="nextPiece">
+                    <ng-container *ngFor="let row of nextPieceContainer; index as i">
+                        <ng-container *ngFor="let currentCell of row; index as j">
+                            <div class="cell" [ngStyle]="{'grid-column-start': j+1, 'overflow': 'hidden'}" [ngClass]="'color-' + (currentCell == 1 ? nextPiece.color : currentCell)">
+                                
+                            </div>
+                        </ng-container>
+                    </ng-container>
+                </ng-container>
+            </div>
+        </div>
+        <br>
+        <div class="infoContainer" >
+            <p>Points: {{ points }}</p>
+            <p>Level: {{ level }}</p>
+            <a [class]="stop ? 'resume' : 'pause'" (click)="togglePause()">{{ stop ? 'RESUME' : 'PAUSE'}}</a>
+        </div>
     </div>
 </div>

@@ -24,6 +24,7 @@ export class BoardComponent implements OnInit {
   points: number;
   level: number;
   nextLevel: number;
+  nextPieceContainer: Array<number | string>[];
   
   // Config Related Properties
   tickerInterval: number; // Time interval between ticks (ms)
@@ -73,6 +74,8 @@ export class BoardComponent implements OnInit {
     }
     this.fallingPiece = this.nextPiece;
     this.nextPiece =  new Piece(INITIAL_PIECE_SIZE + this.level, COLORS[Math.floor(Math.random() * (COLORS.length))]);
+    this.nextPieceContainer = this.formatNextPiece()
+    console.log(this.nextPiece)
     this.fallingPiecePosition = this.entryPoint;
     this.paintPiece();
   }
@@ -168,6 +171,28 @@ export class BoardComponent implements OnInit {
     }
   }
 
+
+  // ESTA FUNCION TIENE UN PROBLEMA
+  formatNextPiece() {
+    let matrixPiece = [];
+    for (let i = 0; i < (INITIAL_PIECE_SIZE + this.level); i++) {
+      matrixPiece.push(new Array(INITIAL_PIECE_SIZE + this.level));
+      for (let j = 0; j < (INITIAL_PIECE_SIZE + this.level); j++) {
+        matrixPiece[i][j] = 0;
+      }
+    }
+    console.log(1,matrixPiece)
+    let insertPoint = [Math.floor((INITIAL_PIECE_SIZE + this.level) / 2) - Math.floor(this.nextPiece.pieceMatrix.length / 2), Math.floor((INITIAL_PIECE_SIZE + this.level) / 2) - Math.floor(this.nextPiece.pieceMatrix[0].length / 2)];
+    
+    for (let i = 0; i < (this.nextPiece.pieceMatrix.length); i++) {
+      for (let j = 0; j < (this.nextPiece.pieceMatrix[i].length); j++) {
+        matrixPiece[insertPoint[0] + i][insertPoint[1] + j] = this.nextPiece.pieceMatrix[i][j];
+      }
+    }
+    console.log(2,matrixPiece)
+    return matrixPiece;
+  }
+
   checkInitArea() {
     for(let [i, row] of this.fallingPiece.pieceMatrix.entries()) {
       for(let [j, cell] of row.entries()) {
@@ -253,18 +278,35 @@ export class BoardComponent implements OnInit {
     })
   }
 
+  togglePause() {
+    if (!this.gameOverFlag) {
+      if (this.stop) {
+        this.resume();
+      } else {
+        this.stopGame();
+      }
+    }
+  }
+
   stopGame() {
     this.stop = true;
     this.resume = function() {
       setTimeout(this.tick.bind(this), this.tickerInterval);
       this.stop = false;
     }
+
   }
 
   gameOver() {
     this.stop = true;
     this.nextPiece = null;
     this.gameOverFlag = true;
+  }
+
+  // Styles calculators
+
+  getBoardStyles(){
+    return {'width': (719.45 * this.boardProportion) + 'px'}
   }
 
   // dev-tests ==========================================================================

@@ -19,26 +19,6 @@ $ROWS: 16;
             grid-template-columns: calc(100% / #{$COLUMNS});
             grid-template-rows: calc(100% / #{$ROWS});
             background-color: rgb(63, 63, 63);
-            .cell {
-                margin: 0;
-                
-                &.color-0 {
-                    background-color: rgb(0, 0, 0);
-                }
-            
-                &.color-yellow{
-                    background-color: yellow;
-                }
-                &.color-green{
-                    background-color: green;
-                }
-                &.color-blue{
-                    background-color: blue;
-                }
-                &.color-red{
-                    background-color: red;
-                }
-            }
         }
         .gameOverOverlay {
             padding: 2.5pt;
@@ -56,38 +36,72 @@ $ROWS: 16;
     }
     
 
-    .infoContainer {
-        margin-left: 10px; 
-        color: white;
-        border: rgb(63, 63, 63) solid 5px;
-        background-color: black;
-        width: 300px;
-        height: 200px;
-        padding: 10px;
-        display:flex;
-        flex-flow: column;
-        justify-content: space-around;
+    .containerContainer {
+        .infoContainer {
+            margin-left: 10px; 
+            color: white;
+            border: rgb(63, 63, 63) solid 5px;
+            background-color: black;
+            width: 300px;
+            height: 200px;
+            padding: 10px;
+            display:flex;
+            flex-flow: column;
+            justify-content: space-around;
+            box-sizing: border-box;
 
-        p {
-            font-size: 30px;
-            margin: 0
-        }
-
-        a {
-            vertical-align: middle;
-            font-size: 30px;
-            text-align: center;
-            border-radius: 5px;
-            &.pause {
-                border: 8px solid red;
-                color: red;
+            &.big{
+                height: 300px;
             }
-            &.resume {
-                border: 8px solid green;
-                color: green;
+            
+            .nextPiecePreview {
+                width: 100%;
+                height: 100%;
+                display: grid;
+
+            }
+    
+            p {
+                font-size: 30px;
+                margin: 0
+            }
+    
+            a {
+                vertical-align: middle;
+                font-size: 30px;
+                text-align: center;
+                border-radius: 5px;
+                &.pause {
+                    border: 8px solid red;
+                    color: red;
+                }
+                &.resume {
+                    border: 8px solid green;
+                    color: green;
+                }
             }
         }
     }
 
 }
 
+.cell {
+    margin: 0;
+    
+    &.color-0 {
+        background-color: rgb(0, 0, 0);
+    }
+
+    &.color-yellow{
+        background-color: yellow;
+    }
+    &.color-green{
+        background-color: green;
+    }
+    &.color-blue{
+        background-color: blue;
+    }
+    &.color-red{
+        background-color: red;
+    }
+}
